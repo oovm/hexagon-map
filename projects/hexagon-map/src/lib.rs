@@ -1,3 +1,4 @@
-mod errors;
+mod maps;
+mod joint;
 
-pub use errors::{Error, Result};
+pub use maps::{Error, Result};
