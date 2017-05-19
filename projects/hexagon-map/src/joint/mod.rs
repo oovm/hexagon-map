@@ -1,33 +1,18 @@
-pub struct Joint {
-    /// Q-axis index
-    pub q: usize,
-    /// S-axis index
-    pub s: usize,
-    /// R-axis index
-    pub r: usize,
-    pub direction: Direction,
+use crate::{HDirection, CPoint};
+use serde::{Serialize, Deserialize};
+
+#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct HJoint {
+    pub point: CPoint,
+    pub direction: HDirection,
 }
 
 
-
-pub enum Direction {
-    Q(bool),
-    S(bool),
-    R(bool),
-}
-
-impl Joint {
-    pub fn source(&self) -> [usize; 3] {
-        [self.q, self.s, self.r]
+impl HJoint {
+    pub fn source(&self) -> CPoint {
+        self.point
     }
-    pub fn target(&self) -> [usize; 3] {
-        match self.direction {
-            Direction::Q(true) => [self.q, self.s + 1, self.r - 1],
-            Direction::Q(false) => [self.q, self.s - 1, self.r + 1],
-            Direction::S(true) => [self.q + 1, self.s, self.r - 1],
-            Direction::S(false) => [self.q - 1, self.s, self.r + 1],
-            Direction::R(true) => [self.q + 1, self.s - 1, self.r],
-            Direction::R(false) => [self.q - 1, self.s + 1, self.r],
-        }
+    pub fn target(&self) -> CPoint {
+        self.point.go(self.direction)
     }
 }
