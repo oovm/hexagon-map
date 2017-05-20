@@ -2,5 +2,5 @@ mod maps;
 mod joint;
 mod point;
 
-pub use crate::joint::HJoint;
-pub use crate::point::{CPoint, HDirection};
+pub use crate::joint::Joint;
+pub use crate::point::{HDirection, s_point::SPoint};
