@@ -1,4 +1,5 @@
-pub struct MazeHexConfig {
+/// A dense hexagon map
+pub struct HexagonMap {
     size: [usize; 3],
     entry: Option<[usize; 3]>,
     exit: Option<[usize; 3]>,
@@ -6,17 +7,14 @@ pub struct MazeHexConfig {
     seed: [u8; 32],
 }
 
-impl Default for MazeHexConfig {
+impl Default for HexagonMap {
     fn default() -> Self {
         Self { size: [5, 5, 5], entry: None, exit: None, bad: vec![], seed: rand::random::<[u8; 32]>() }
     }
 }
 
 
-
-
-
-impl MazeHexConfig {
+impl HexagonMap {
     pub fn circle(x: usize, y: usize, z: usize) -> Self {
         Self { size: [x, y, z], ..Default::default() }
     }

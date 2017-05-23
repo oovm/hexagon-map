@@ -1,13 +1,12 @@
-use crate::{HDirection, SPoint};
+use crate::{Direction};
 use serde::{Serialize, Deserialize};
 use crate::point::AxialPoint;
 
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Joint {
     pub point: AxialPoint,
-    pub direction: HDirection,
+    pub direction: Direction,
 }
-
 
 impl Joint {
     pub fn source(&self) -> AxialPoint {
