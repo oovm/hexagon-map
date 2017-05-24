@@ -1,6 +1,7 @@
-use std::collections::{BTreeMap};
-use std::collections::btree_map::Iter;
-use crate::point::AxialPoint;
+use crate::{point::AxialPoint, HPoint, WPoint};
+use std::collections::{btree_map::Iter, BTreeMap};
+
+mod path_finder;
 
 /// A sparse hexagon map, if your map size will grow, or most areas will be blank, this is a better choice.
 pub struct HexagonMap<T> {
@@ -27,11 +28,48 @@ impl<T: Default> HexagonMap<T> {
         }
         Self { map }
     }
-    pub fn width_first(width: usize, height: usize, fill: (bool, bool)) -> Self {
-        todo!()
+    /// Create a width first hexagon map.
+    ///
+    /// # Arguments
+    ///
+    /// * `width`: row count
+    /// * `height`: column count
+    /// * `odd_left`: Fill the extra line at left if width is odd.
+    ///
+    /// returns: HexagonMap<T>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use hexagon_map::HexagonMap;
+    /// let map = HexagonMap::<u8>::width_first(5, 5, true);
+    /// assert_eq!(map.count_points(), 10)
+    /// ```
+    pub fn width_first(rows: usize, columns: usize, odd_left: bool) -> Self {
+        let mut map = BTreeMap::new();
+        for x in 0..rows {
+            for y in 0..columns {
+                let point = match rows % 2 {
+                    1 if odd_left => WPoint::new(x as isize - 1, y as isize),
+                    _ => WPoint::new(x as isize, y as isize),
+                };
+                map.insert(point.into(), Default::default());
+            }
+        }
+        Self { map }
     }
-    pub fn height_first(width: usize, height: usize, fill: (bool, bool)) -> Self {
-        todo!()
+    pub fn height_first(rows: usize, columns: usize, odd_up: bool) -> Self {
+        let mut map = BTreeMap::new();
+        for y in 0..columns {
+            for x in 0..rows {
+                let point = match columns % 2 {
+                    1 if odd_up => HPoint::new(x as isize, y as isize - 1),
+                    _ => HPoint::new(x as isize, y as isize),
+                };
+                map.insert(point.into(), Default::default());
+            }
+        }
+        Self { map }
     }
 }
 
@@ -52,7 +90,30 @@ impl<T> HexagonMap<T> {
     pub fn remove_point(&mut self, point: AxialPoint) -> Option<T> {
         self.map.remove(&point)
     }
-    pub fn points(&self) -> impl Iterator<Item=&AxialPoint> {
+    /// Count all defined points in the map.
+    pub fn count_points(&self) -> usize {
+        self.map.len()
+    }
+    /// Find at most 6 points that are exists and adjacent to a point.
+    pub fn nearby_points(&self, from: &AxialPoint) -> Vec<AxialPoint> {
+        from.nearby().into_iter().filter(|p| self.map.contains_key(p)).collect()
+    }
+    /// Find all points that are within a certain distance of a point.
+    pub fn around_points(&self, from: &AxialPoint, distance: usize) -> Vec<AxialPoint> {
+        match distance {
+            0 => vec![*from],
+            1 => self.nearby_points(from),
+            // TODO: optimize this
+            _ => {
+                let mut points = vec![];
+                for point in self.nearby_points(from) {
+                    points.extend(self.around_points(&point, distance - 1));
+                }
+                points
+            }
+        }
+    }
+    pub fn points(&self) -> impl Iterator<Item = &AxialPoint> {
         self.map.keys()
     }
 }

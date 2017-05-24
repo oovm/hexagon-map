@@ -8,7 +8,7 @@ fn ready() {
 
 #[test]
 fn test() {
-    let map = HexagonMap::<bool>::rhombus(5, 5);
+    let map = HexagonMap::<bool>::width_first(3, 4, true);
     for (p, maze) in &map {
         println!("{p}: {maze}")
     }

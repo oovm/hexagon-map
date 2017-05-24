@@ -6,6 +6,7 @@ pub mod w_point;
 pub mod h_point;
 
 mod display;
+mod convert;
 
 /// A point in axial coordinates, standard form of a hexagon map
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -13,6 +14,7 @@ pub struct AxialPoint {
     pub q: isize,
     pub r: isize,
 }
+
 
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Direction {
@@ -22,6 +24,20 @@ pub enum Direction {
     R(bool),
     Q(bool),
 }
+
+impl Direction {
+    pub fn all() -> [Direction; 6] {
+        [
+            Direction::S(true),
+            Direction::S(false),
+            Direction::R(true),
+            Direction::R(false),
+            Direction::Q(true),
+            Direction::Q(false),
+        ]
+    }
+}
+
 
 impl AxialPoint {
     /// Create a new point in axial coordinates
@@ -49,6 +65,12 @@ impl AxialPoint {
             corners[i] = (center_x + radius * angle.cos(), center_y + radius * angle.sin());
         }
         corners
+    }
+    pub fn nearby(&self) -> Vec<Self> {
+        Direction::all()
+            .iter()
+            .map(|direction| self.go(*direction))
+            .collect()
     }
 }
 
