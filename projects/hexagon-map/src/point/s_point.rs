@@ -1,7 +1,7 @@
 use super::*;
 
 /// A point in 3D stepped coordinate
-#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct SPoint {
     /// Q-axis index, Z-axis index in cube coordinates
     pub q: isize,

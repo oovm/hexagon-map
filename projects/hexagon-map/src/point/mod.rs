@@ -1,11 +1,14 @@
 use serde::{Serialize, Deserialize};
+use std::fmt::{Debug, Display, Formatter};
 
 pub mod s_point;
 pub mod w_point;
 pub mod h_point;
 
+mod display;
+
 /// A point in axial coordinates, standard form of a hexagon map
-#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct AxialPoint {
     pub q: isize,
     pub r: isize,
