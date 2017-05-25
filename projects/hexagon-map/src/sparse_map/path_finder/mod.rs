@@ -1,53 +1,99 @@
 use super::*;
 use std::collections::BTreeSet;
 
+/// A* path finder on a hexagon map.
 pub struct PathFinder<'a, T> {
     map: &'a HexagonMap<T>,
     start: AxialPoint,
     end: AxialPoint,
     open: BTreeSet<AxialPoint>,
     close: BTreeSet<AxialPoint>,
+    passable: Box<dyn Fn(&AxialPoint) -> bool>,
+    action_point: Option<f64>,
+    action_cost: Box<dyn Fn(&AxialPoint) -> f64>,
 }
 
 impl<T> HexagonMap<T> {
     pub fn path_finder(&self, start: &AxialPoint, end: &AxialPoint) -> PathFinder<T> {
-        PathFinder { map: self, start: *start, end: *end, open: Default::default(), close: Default::default() }
+        PathFinder {
+            map: self,
+            start: start.clone(),
+            end: end.clone(),
+            open: Default::default(),
+            close: Default::default(),
+            passable: Box::new(|f| true),
+            action_point: None,
+            action_cost: Box::new(()),
+        }
     }
 }
 
 impl<'a, T> PathFinder<'a, T> {
-    pub fn find(&mut self) -> Option<Vec<AxialPoint>> {
-        let mut open = BTreeSet::new();
-        let mut close = BTreeSet::new();
-        let mut came_from = BTreeMap::new();
-        let mut g_score = BTreeMap::new();
-        let mut f_score = BTreeMap::new();
-        open.insert(self.start);
-        g_score.insert(self.start, 0);
-        f_score.insert(self.start, self.start.distance(&self.end));
-        while !open.is_empty() {
-            let current = open.iter().min_by_key(|p| f_score.get(p).unwrap()).unwrap().clone();
-            if current == self.end {
-                return Some(reconstruct_path(&came_from, &current));
+    pub fn with_passable<F>(mut self, passable: F) -> Self
+    where
+        F: Fn(&AxialPoint) -> bool,
+    {
+        self.passable = Box::new(passable);
+        self
+    }
+    pub fn with_action(mut self, action: f64) -> Self {
+        if action.is_sign_negative() {
+            self.action_point = None;
+        }
+        else {
+            self.action_point = Some(action);
+        }
+        self
+    }
+    pub fn with_cost<F>(mut self, cost: F) -> Self
+    where
+        F: Fn(&AxialPoint) -> f64,
+    {
+        self.action_point = Some(0.0);
+        self.action_cost = Box::new(cost);
+        self
+    }
+
+    pub fn find<F>(mut self, reject: F) -> Option<Vec<AxialPoint>>
+    where
+        F: Fn(&AxialPoint) -> bool,
+    {
+        // A* algorithm
+        self.open.insert(self.start);
+        while !self.open.is_empty() {
+            let current = self.open.iter().min_by_key(|&x| self.map.distance(*x, self.end)).unwrap();
+            self.open.remove(current);
+            self.close.insert(*current);
+            if *current == self.end {
+                break;
             }
-            open.remove(&current);
-            close.insert(current);
-            for neighbor in self.map.neighbors(&current) {
-                if close.contains(&neighbor) {
+            for neighbor in self.map.neighbors(*current) {
+                if reject(&neighbor) {
                     continue;
                 }
-                let tentative_g_score = g_score.get(&current).unwrap() + current.distance(&neighbor);
-                if !open.contains(&neighbor) {
-                    open.insert(neighbor);
-                }
-                else if tentative_g_score >= *g_score.get(&neighbor).unwrap() {
+                if self.close.contains(&neighbor) {
                     continue;
                 }
-                came_from.insert(neighbor, current);
-                g_score.insert(neighbor, tentative_g_score);
-                f_score.insert(neighbor, tentative_g_score + neighbor.distance(&self.end));
+                self.open.insert(neighbor);
             }
         }
-        None
+        if self.close.contains(&self.end) {
+            let mut path = vec![self.end];
+            let mut current = self.end;
+            while current != self.start {
+                for neighbor in self.map.neighbors(current) {
+                    if self.close.contains(&neighbor) {
+                        current = neighbor;
+                        path.push(current);
+                        break;
+                    }
+                }
+            }
+            path.reverse();
+            Some(path)
+        }
+        else {
+            None
+        }
     }
 }
