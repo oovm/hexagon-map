@@ -1,4 +1,5 @@
 use super::*;
+use crate::{Direction, Joint};
 use std::collections::BTreeSet;
 
 /// A* path finder on a hexagon map.
@@ -8,34 +9,75 @@ pub struct PathFinder<'a, T> {
     end: AxialPoint,
     open: BTreeSet<AxialPoint>,
     close: BTreeSet<AxialPoint>,
-    passable: Box<dyn Fn(&AxialPoint) -> bool>,
+    passable: Box<dyn Fn(&AxialPoint, &T) -> bool>,
     action_point: Option<f64>,
-    action_cost: Box<dyn Fn(&AxialPoint) -> f64>,
+    action_cost: Box<dyn Fn(&AxialPoint, &T) -> f64>,
 }
 
 impl<T> HexagonMap<T> {
+    /// Set the passable function.
+    ///
+    /// # Arguments
+    ///
+    /// * `passable`:  A function that returns true if the point is passable.
+    ///
+    /// returns: PathFinder<T>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use hexagon_map::HexagonMap;
+    /// ```
     pub fn path_finder(&self, start: &AxialPoint, end: &AxialPoint) -> PathFinder<T> {
+        let mut open = BTreeSet::new();
+        open.insert(start.clone());
         PathFinder {
             map: self,
             start: start.clone(),
             end: end.clone(),
-            open: Default::default(),
+            open,
             close: Default::default(),
-            passable: Box::new(|f| true),
+            passable: Box::new(|_, _| true),
             action_point: None,
-            action_cost: Box::new(()),
+            action_cost: Box::new(|_, _| 0.0),
         }
     }
 }
 
 impl<'a, T> PathFinder<'a, T> {
+    /// Set the passable function.
+    ///
+    /// # Arguments
+    ///
+    /// * `passable`:  A function that returns true if the point is passable.
+    ///
+    /// returns: PathFinder<T>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use hexagon_map::HexagonMap;
+    /// ```
     pub fn with_passable<F>(mut self, passable: F) -> Self
     where
-        F: Fn(&AxialPoint) -> bool,
+        F: Fn(&AxialPoint, &T) -> bool + 'static,
     {
         self.passable = Box::new(passable);
         self
     }
+    /// Set the passable function.
+    ///
+    /// # Arguments
+    ///
+    /// * `passable`:  A function that returns true if the point is passable.
+    ///
+    /// returns: PathFinder<T>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use hexagon_map::HexagonMap;
+    /// ```
     pub fn with_action(mut self, action: f64) -> Self {
         if action.is_sign_negative() {
             self.action_point = None;
@@ -45,55 +87,94 @@ impl<'a, T> PathFinder<'a, T> {
         }
         self
     }
+    /// Set the passable function.
+    ///
+    /// # Arguments
+    ///
+    /// * `passable`:  A function that returns true if the point is passable.
+    ///
+    /// returns: PathFinder<T>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use hexagon_map::HexagonMap;
+    /// ```
     pub fn with_cost<F>(mut self, cost: F) -> Self
     where
-        F: Fn(&AxialPoint) -> f64,
+        F: Fn(&AxialPoint, &T) -> f64 + 'static,
     {
         self.action_point = Some(0.0);
         self.action_cost = Box::new(cost);
         self
     }
-
-    pub fn find<F>(mut self, reject: F) -> Option<Vec<AxialPoint>>
-    where
-        F: Fn(&AxialPoint) -> bool,
-    {
-        // A* algorithm
-        self.open.insert(self.start);
-        while !self.open.is_empty() {
-            let current = self.open.iter().min_by_key(|&x| self.map.distance(*x, self.end)).unwrap();
-            self.open.remove(current);
-            self.close.insert(*current);
-            if *current == self.end {
-                break;
+    pub fn get_point(&self, point: &AxialPoint) -> Option<&T> {
+        self.map.sparse.get(point)
+    }
+    pub fn has_point(&self, point: &AxialPoint) -> bool {
+        self.map.sparse.contains_key(point)
+    }
+    pub fn distance_to_start(&self, point: &AxialPoint) -> usize {
+        self.start.manhattan_distance(point)
+    }
+    pub fn distance_to_end(&self, point: &AxialPoint) -> usize {
+        self.end.manhattan_distance(point)
+    }
+    /// Get all passable neighbors from a point
+    pub fn neighbors(&self, point: &AxialPoint) -> Vec<Joint> {
+        let mut neighbors = vec![];
+        for direction in Direction::all() {
+            if let Some(target) = self.map.sparse.get(&point.go(direction)) {
+                if (self.passable)(point, target) {
+                    neighbors.push(Joint::new(point, direction));
+                }
             }
-            for neighbor in self.map.neighbors(*current) {
-                if reject(&neighbor) {
+        }
+        neighbors
+    }
+    pub fn solve_joint(mut self) -> Option<Vec<Joint>> {
+        if self.fast_reject() {
+            return None;
+        }
+        while let Some(current) = self.open.pop_first() {
+            if current == self.end {
+                return Some(self.reconstruct_path(&current));
+            }
+            self.close.insert(current.clone());
+            for neighbor in self.neighbors(&current) {
+                if self.close.contains(&neighbor.target()) {
                     continue;
                 }
-                if self.close.contains(&neighbor) {
+                let tentative_g_score = self.distance_to_start(&current) + 1;
+                if !self.open.contains(&neighbor.target()) {
+                    self.open.insert(neighbor.target());
+                }
+                else if tentative_g_score >= self.distance_to_start(&neighbor.target()) {
                     continue;
                 }
-                self.open.insert(neighbor);
+                self.open.insert(neighbor.target());
             }
         }
-        if self.close.contains(&self.end) {
-            let mut path = vec![self.end];
-            let mut current = self.end;
-            while current != self.start {
-                for neighbor in self.map.neighbors(current) {
-                    if self.close.contains(&neighbor) {
-                        current = neighbor;
-                        path.push(current);
-                        break;
-                    }
-                }
-            }
-            path.reverse();
-            Some(path)
+        None
+    }
+    pub fn solve_path(mut self) -> Option<Vec<AxialPoint>> {
+        let joints = self.solve_joint()?;
+        let mut path = vec![self.start];
+        for joint in joints {
+            path.push(joint.target());
         }
-        else {
-            None
+        Some(path)
+    }
+    fn fast_reject(&self) -> bool {
+        !self.has_point(&self.start) || !self.has_point(&self.end)
+    }
+    fn reconstruct_path(&self, current: &AxialPoint) -> Vec<AxialPoint> {
+        let mut path = vec![current.clone()];
+        let mut current = current.clone();
+        while current != self.start {
+            current = current.go(Direction::all()[0]);
+            path.push(current.clone());
         }
+        path
     }
 }

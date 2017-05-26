@@ -1,6 +1,5 @@
-use crate::{Direction};
-use serde::{Serialize, Deserialize};
-use crate::point::AxialPoint;
+use crate::{point::AxialPoint, Direction};
+use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Joint {
@@ -9,6 +8,10 @@ pub struct Joint {
 }
 
 impl Joint {
+    pub fn new(point: &AxialPoint, direction: Direction) -> Self {
+        Self { point: *point, direction }
+    }
+
     pub fn source(&self) -> AxialPoint {
         self.point
     }
