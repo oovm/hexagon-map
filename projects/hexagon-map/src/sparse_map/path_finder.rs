@@ -1,6 +1,5 @@
 use super::*;
-use crate::{Direction, Joint};
-use std::collections::BTreeSet;
+use std::collections::HashMap;
 
 /// A* path finder on a hexagon map.
 pub struct PathFinder<'a, T> {
@@ -121,18 +120,21 @@ impl<'a, T> PathFinder<'a, T> {
         self.end.manhattan_distance(point)
     }
     /// Get all passable neighbors from a point
-    pub fn neighbors(&self, point: &AxialPoint) -> Vec<Joint> {
+    pub fn neighbors(&self, point: &AxialPoint) -> Vec<AxialPoint> {
         let mut neighbors = vec![];
         for direction in Direction::all() {
             if let Some(target) = self.map.sparse.get(&point.go(direction)) {
                 if (self.passable)(point, target) {
-                    neighbors.push(Joint::new(point, direction));
+                    neighbors.push(point.go(direction));
                 }
             }
         }
         neighbors
     }
-    pub fn solve_joint(mut self) -> Option<Vec<Joint>> {
+    fn fast_reject(&self) -> bool {
+        !self.has_point(&self.start) || !self.has_point(&self.end)
+    }
+    pub fn solve_path(mut self) -> Option<Vec<AxialPoint>> {
         if self.fast_reject() {
             return None;
         }
@@ -142,39 +144,31 @@ impl<'a, T> PathFinder<'a, T> {
             }
             self.close.insert(current.clone());
             for neighbor in self.neighbors(&current) {
-                if self.close.contains(&neighbor.target()) {
+                if self.close.contains(&neighbor) {
                     continue;
                 }
                 let tentative_g_score = self.distance_to_start(&current) + 1;
-                if !self.open.contains(&neighbor.target()) {
-                    self.open.insert(neighbor.target());
+                if !self.open.contains(&neighbor) {
+                    self.open.insert(neighbor);
                 }
-                else if tentative_g_score >= self.distance_to_start(&neighbor.target()) {
+                else if tentative_g_score >= self.distance_to_start(&neighbor) {
                     continue;
                 }
-                self.open.insert(neighbor.target());
+                self.open.insert(neighbor);
             }
         }
         None
     }
-    pub fn solve_path(mut self) -> Option<Vec<AxialPoint>> {
-        let joints = self.solve_joint()?;
-        let mut path = vec![self.start];
-        for joint in joints {
-            path.push(joint.target());
-        }
-        Some(path)
-    }
-    fn fast_reject(&self) -> bool {
-        !self.has_point(&self.start) || !self.has_point(&self.end)
-    }
+    // pub fn solve_joint(mut self) -> Option<Vec<AxialPoint>> {
+    //     let joints = self.solve_path()?;
+    //     let mut path = vec![self.start];
+    //     for joint in joints {
+    //         path.push(joint.target());
+    //     }
+    //     Some(path)
+    // }
     fn reconstruct_path(&self, current: &AxialPoint) -> Vec<AxialPoint> {
-        let mut path = vec![current.clone()];
-        let mut current = current.clone();
-        while current != self.start {
-            current = current.go(Direction::all()[0]);
-            path.push(current.clone());
-        }
-        path
+        let _ = vec![*current];
+        todo!()
     }
 }
