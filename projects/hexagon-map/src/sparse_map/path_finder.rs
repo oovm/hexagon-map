@@ -1,5 +1,4 @@
 use super::*;
-use std::collections::HashMap;
 
 /// A* path finder on a hexagon map.
 pub struct PathFinder<'a, T> {
