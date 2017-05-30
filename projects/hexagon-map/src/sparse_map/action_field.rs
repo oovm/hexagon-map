@@ -1,9 +1,9 @@
 use super::*;
 use itertools::Itertools;
+use std::cmp::Ordering;
 
-pub struct CostField<'a, T> {
+pub struct ActionFieldSolver<'a, T> {
     map: &'a HexagonMap<T>,
-    start: AxialPoint,
     open: BTreeMap<AxialPoint, f64>,
     close: BTreeMap<AxialPoint, f64>,
     action_points: f64,
@@ -25,12 +25,11 @@ impl<T> HexagonMap<T> {
     /// ```
     /// # use hexagon_map::HexagonMap;
     /// ```
-    pub fn cost_field(&self, start: &AxialPoint, action: f64) -> CostField<T> {
+    pub fn action_field(&self, start: AxialPoint, action: f64) -> ActionFieldSolver<T> {
         let mut open = BTreeMap::new();
-        open.insert(*start, 0.0);
-        CostField {
+        open.insert(start, 0.0);
+        ActionFieldSolver {
             map: self,
-            start: start.clone(),
             open,
             close: Default::default(),
             action_points: action,
@@ -40,9 +39,26 @@ impl<T> HexagonMap<T> {
     }
 }
 
-impl<'a, T> CostField<'a, T> {
+impl<'a, T> ActionFieldSolver<'a, T> {
+    pub fn with_passable<F>(mut self, passable: F) -> Self
+    where
+        F: Fn(&AxialPoint, &T) -> bool + 'static,
+    {
+        self.passable = Box::new(passable);
+        self
+    }
+    pub fn with_cost<F>(mut self, cost: F) -> Self
+    where
+        F: Fn(&AxialPoint, &T) -> f64 + 'static,
+    {
+        self.action_cost = Box::new(cost);
+        self
+    }
+}
+
+impl<'a, T> ActionFieldSolver<'a, T> {
     /// Get all passable neighbors from a point
-    pub fn add_neighbors(&self, point: &AxialPoint) -> Vec<(AxialPoint, f64)> {
+    pub fn neighbors(&self, point: &AxialPoint) -> Vec<(AxialPoint, f64)> {
         let mut neighbors = Vec::with_capacity(6);
         for direction in Direction::all() {
             let key = point.go(direction);
@@ -61,7 +77,7 @@ impl<'a, T> CostField<'a, T> {
     }
     pub fn solve(mut self) -> Vec<(f64, AxialPoint)> {
         while let Some((point, cost)) = self.open.pop_first() {
-            for (neighbor, neighbor_cost) in self.add_neighbors(&point) {
+            for (neighbor, neighbor_cost) in self.neighbors(&point) {
                 let new_cost = cost + neighbor_cost;
                 if new_cost > self.action_points {
                     continue;
@@ -72,6 +88,10 @@ impl<'a, T> CostField<'a, T> {
             }
             self.close.insert(point, cost);
         }
-        self.close.iter().map(|(k, v)| (*v, *k)).sorted_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap()).collect()
+        self.close
+            .iter()
+            .map(|(k, v)| (*v, *k))
+            .sorted_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(Ordering::Equal))
+            .collect()
     }
 }
