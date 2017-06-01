@@ -1,14 +1,12 @@
 use super::*;
-use itertools::Itertools;
-use std::cmp::Ordering;
 
 pub struct ActionFieldSolver<'a, T> {
     map: &'a HexagonMap<T>,
     open: BTreeMap<AxialPoint, f64>,
     close: BTreeMap<AxialPoint, f64>,
-    action_points: f64,
     passable: Box<dyn Fn(&AxialPoint, &T) -> bool>,
     action_cost: Box<dyn Fn(&AxialPoint, &T) -> f64>,
+    action_points: f64,
 }
 
 impl<T> HexagonMap<T> {
