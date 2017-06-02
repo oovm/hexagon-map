@@ -1,17 +1,23 @@
 [package]
-name = "hexagon-map"
-version = "0.0.1"
+name = "hexagon-web"
+publish = false
+version = "0.0.0"
 authors = ["Aster <192607617@qq.com>"]
 description = "Coordinate transformation and pathfinding for hexagonal maps"
 repository = "https://github.com/oovm/hexagon-map"
-documentation = "https://docs.rs/hexagon-map"
+documentation = "https://docs.rs/hexagon-svg"
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2021"
 
 [dependencies]
-itertools = "0.10.5"
-serde = { version = "1.0.159", features = ["derive"] }
+svg = "0.13.1"
+dioxus = "0.3.2"
+dioxus-web = "0.3.1"
+
+[dependencies.hexagon-map]
+#version = "0.0.1"
+path = "../hexagon-map"
 
 [dev-dependencies]
 

@@ -1,3 +1,4 @@
+mod illustration;
 mod joint;
 mod point;
 mod sparse_map;
