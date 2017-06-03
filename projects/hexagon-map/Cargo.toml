@@ -12,6 +12,8 @@ edition = "2021"
 [dependencies]
 itertools = "0.10.5"
 serde = { version = "1.0.159", features = ["derive"] }
+ordered-float = "3.6.0"
+pathfinding = "4.2.1"
 
 [dev-dependencies]
 

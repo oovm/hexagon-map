@@ -1,3 +1,3 @@
 mod renderer;
 
-pub use crate::renderer::Renderer;
+pub use crate::renderer::SvgRenderer;
