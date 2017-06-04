@@ -1,12 +1,12 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display, Formatter};
 
+pub mod h_point;
 pub mod s_point;
 pub mod w_point;
-pub mod h_point;
 
-mod display;
 mod convert;
+mod display;
 
 /// A point in axial coordinates, standard form of a hexagon map
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
@@ -14,7 +14,6 @@ pub struct AxialPoint {
     pub q: isize,
     pub r: isize,
 }
-
 
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Direction {
@@ -37,7 +36,6 @@ impl Direction {
         ]
     }
 }
-
 
 impl AxialPoint {
     /// Create a new point in axial coordinates
@@ -67,10 +65,7 @@ impl AxialPoint {
         corners
     }
     pub fn nearby(&self) -> Vec<Self> {
-        Direction::all()
-            .iter()
-            .map(|direction| self.go(*direction))
-            .collect()
+        Direction::all().iter().map(|direction| self.go(*direction)).collect()
     }
 }
 
@@ -98,5 +93,18 @@ impl AxialPoint {
     }
 }
 
-
-
+impl Direction {
+    pub fn from_points(lhs: &AxialPoint, rhs: &AxialPoint) -> Option<Self> {
+        let q = rhs.q - lhs.q;
+        let r = rhs.r - lhs.r;
+        match (q, r) {
+            (1, -1) => Some(Direction::S(true)),
+            (-1, 1) => Some(Direction::S(false)),
+            (1, 0) => Some(Direction::R(true)),
+            (-1, 0) => Some(Direction::R(false)),
+            (0, -1) => Some(Direction::Q(true)),
+            (0, 1) => Some(Direction::Q(false)),
+            _ => None,
+        }
+    }
+}

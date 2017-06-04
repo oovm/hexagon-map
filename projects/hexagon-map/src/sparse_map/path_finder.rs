@@ -1,5 +1,5 @@
 use super::*;
-use crate::Joint;
+
 use ordered_float::OrderedFloat;
 use pathfinding::prelude::astar;
 
@@ -26,8 +26,8 @@ impl<T> HexagonMap<T> {
     /// ```
     /// # use hexagon_map::HexagonMap;
     /// ```
-    pub fn path_finder(&self, start: &AxialPoint, end: &AxialPoint) -> PathFinder<T> {
-        PathFinder { map: self, start: *start, end: *end, passable: Box::new(|_, _| true), action_cost: Box::new(|_, _| 1.0) }
+    pub fn path_finder(&self, start: AxialPoint, end: AxialPoint) -> PathFinder<T> {
+        PathFinder { map: self, start, end, passable: Box::new(|_, _| true), action_cost: Box::new(|_, _| 1.0) }
     }
 }
 
@@ -65,7 +65,7 @@ impl<'a, T> PathFinder<'a, T> {
     /// ```
     /// # use hexagon_map::HexagonMap;
     /// ```
-    pub fn with_action_cost<F>(mut self, cost: F) -> Self
+    pub fn with_cost<F>(mut self, cost: F) -> Self
     where
         F: Fn(&AxialPoint, &T) -> f64 + 'static,
     {
@@ -79,15 +79,16 @@ impl<'a, T> PathFinder<'a, T> {
         self.map.sparse.contains_key(point)
     }
     fn distance(&self, point: &AxialPoint) -> OrderedFloat<f64> {
-        self.end.manhattan_distance(point)
+        OrderedFloat(self.end.manhattan_distance(point) as f64)
     }
     /// Get all passable neighbors from a point
-    pub fn neighbors(&self, point: &AxialPoint) -> Vec<AxialPoint> {
+    pub fn neighbors(&self, point: &AxialPoint) -> Vec<(AxialPoint, OrderedFloat<f64>)> {
         let mut neighbors = vec![];
         for direction in Direction::all() {
             if let Some(target) = self.map.sparse.get(&point.go(direction)) {
                 if (self.passable)(point, target) {
-                    neighbors.push(point.go(direction));
+                    let cost = (self.action_cost)(point, target);
+                    neighbors.push((point.go(direction), OrderedFloat(cost)));
                 }
             }
         }
@@ -99,10 +100,6 @@ impl<'a, T> PathFinder<'a, T> {
             .unwrap_or((vec![], f64::INFINITY))
     }
     pub fn solve_joint(self) -> (Vec<Joint>, f64) {
-        todo!()
-    }
-    fn reconstruct_path(&self, current: &AxialPoint) -> Vec<AxialPoint> {
-        let _ = vec![*current];
         todo!()
     }
 }
