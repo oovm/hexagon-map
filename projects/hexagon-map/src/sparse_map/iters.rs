@@ -1,8 +1,5 @@
 use super::*;
-use std::collections::{
-    btree_map::{Iter, IterMut, Keys},
-    BTreeSet,
-};
+use std::collections::btree_map::{Iter, IterMut, Keys};
 
 pub struct GetHexagonPoints<'i, T> {
     map: Iter<'i, AxialPoint, T>,

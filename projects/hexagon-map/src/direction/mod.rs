@@ -12,24 +12,6 @@ pub enum Orientation {
     Q(bool),
 }
 
-impl Iterator for Orientation {
-    type Item = Orientation;
-
-    // Rotate 60° counterclockwise
-    fn next(&mut self) -> Option<Self::Item> {
-        let mut next = match self {
-            Orientation::S(true) => Orientation::R(true),
-            Orientation::S(false) => Orientation::R(false),
-            Orientation::R(true) => Orientation::Q(true),
-            Orientation::R(false) => Orientation::Q(false),
-            Orientation::Q(true) => Orientation::S(true),
-            Orientation::Q(false) => Orientation::S(false),
-        };
-        *self = next;
-        Some(next)
-    }
-}
-
 impl Orientation {
     pub fn all() -> [Orientation; 6] {
         [
