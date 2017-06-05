@@ -1,4 +1,4 @@
-use crate::{point::AxialPoint, Direction, HPoint, Joint, WPoint};
+use crate::{point::AxialPoint, HPoint, Joint, Orientation, WPoint};
 use itertools::Itertools;
 use std::{cmp::Ordering, collections::BTreeMap};
 
@@ -46,7 +46,7 @@ impl<T: Default> HexagonMap<T> {
     /// ```
     /// # use hexagon_map::HexagonMap;
     /// let map = HexagonMap::<u8>::width_first(5, 5, true);
-    /// assert_eq!(map.point_count(), 25)
+    /// assert_eq!(map.points_count(), 25)
     /// ```
     pub fn width_first(rows: usize, columns: usize, odd_left: bool) -> Self {
         let mut map = BTreeMap::new();

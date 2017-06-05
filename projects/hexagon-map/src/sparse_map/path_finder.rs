@@ -84,7 +84,7 @@ impl<'a, T> PathFinder<'a, T> {
     /// Get all passable neighbors from a point
     pub fn neighbors(&self, point: &AxialPoint) -> Vec<(AxialPoint, OrderedFloat<f64>)> {
         let mut neighbors = vec![];
-        for direction in Direction::all() {
+        for direction in Orientation::all() {
             if let Some(target) = self.map.sparse.get(&point.go(direction)) {
                 if (self.passable)(point, target) {
                     let cost = (self.action_cost)(point, target);

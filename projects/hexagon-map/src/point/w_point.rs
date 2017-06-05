@@ -13,7 +13,7 @@ impl WPoint {
     pub fn new(x: isize, y: isize) -> Self {
         Self { x, y }
     }
-    pub fn go(&self, direction: Direction) -> Self {
+    pub fn go(&self, direction: Orientation) -> Self {
         <WPoint as Into<AxialPoint>>::into(*self).go(direction).into()
     }
 }

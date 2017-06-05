@@ -1,5 +1,8 @@
 use super::*;
-use std::collections::btree_map::{Iter, IterMut};
+use std::collections::{
+    btree_map::{Iter, IterMut, Keys},
+    BTreeSet,
+};
 
 pub struct GetHexagonPoints<'i, T> {
     map: Iter<'i, AxialPoint, T>,
@@ -36,31 +39,50 @@ impl<T> HexagonMap<T> {
     }
 }
 
+pub struct HexagonPointsAround<'i, T> {
+    keys: Keys<'i, AxialPoint, T>,
+    center: AxialPoint,
+    distance: isize,
+    current: isize,
+}
+
+impl<'i, T> Iterator for HexagonPointsAround<'i, T> {
+    type Item = AxialPoint;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        todo!()
+    }
+}
+
 impl<T> HexagonMap<T> {
     /// Count all defined points in the map.
-    pub fn point_count(&self) -> usize {
+    pub fn points_count(&self) -> usize {
         self.sparse.len()
     }
-    /// Find at most 6 points that are exists and adjacent to a point.
-    pub fn points_nearby(&self, from: &AxialPoint) -> Vec<AxialPoint> {
-        from.nearby().into_iter().filter(|p| self.sparse.contains_key(p)).collect()
-    }
-    pub fn joints_nearby(&self, from: &AxialPoint) -> Vec<AxialPoint> {
-        from.nearby().into_iter().filter(|p| self.sparse.contains_key(p) && self.sparse.contains_key(&p.joint())).collect()
-    }
-    /// Find all points that are within a certain distance of a point.
-    pub fn points_around(&self, from: &AxialPoint, distance: usize) -> Vec<AxialPoint> {
-        match distance {
-            0 => vec![*from],
-            1 => self.points_nearby(from),
-            // TODO: optimize this
-            _ => {
-                let mut points = vec![];
-                for point in self.points_nearby(from) {
-                    points.extend(self.points_around(&point, distance - 1));
-                }
-                points
+    /// Find at most 6 points that are exists and adjacent to given point.
+    pub fn points_nearby(&self, source: AxialPoint) -> Vec<AxialPoint> {
+        let mut out = Vec::with_capacity(6);
+        for direction in Orientation::all() {
+            let target = source.go(direction);
+            if self.sparse.contains_key(&target) {
+                out.push(target);
             }
         }
+        out
+    }
+    /// Find at most 6 joints that are exists and adjacent to given point.
+    pub fn joints_nearby(&self, source: AxialPoint) -> Vec<Joint> {
+        let mut out = Vec::with_capacity(6);
+        for direction in Orientation::all() {
+            let target = source.go(direction);
+            if self.sparse.contains_key(&target) {
+                out.push(source.as_joint(direction));
+            }
+        }
+        out
+    }
+    /// Find all points that are within a certain distance of a point.
+    pub fn points_around(&self, source: AxialPoint, steps: usize) -> HexagonPointsAround<T> {
+        HexagonPointsAround { keys: self.sparse.keys(), center: source, distance: steps as isize, current: 0 }
     }
 }

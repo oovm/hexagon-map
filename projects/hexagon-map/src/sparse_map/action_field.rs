@@ -59,7 +59,7 @@ impl<'a, T> ActionFieldSolver<'a, T> {
     /// Get all passable neighbors from a point
     pub fn neighbors(&self, point: &AxialPoint) -> Vec<(AxialPoint, f64)> {
         let mut neighbors = Vec::with_capacity(6);
-        for direction in Direction::all() {
+        for direction in Orientation::all() {
             let key = point.go(direction);
             if let Some(value) = self.map.sparse.get(&key) {
                 if !(self.passable)(&key, value) {

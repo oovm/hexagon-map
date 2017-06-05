@@ -13,7 +13,7 @@ impl HPoint {
     pub fn new(x: isize, y: isize) -> Self {
         Self { x, y }
     }
-    pub fn go(&self, direction: Direction) -> Self {
+    pub fn go(&self, direction: Orientation) -> Self {
         <HPoint as Into<AxialPoint>>::into(*self).go(direction).into()
     }
 }

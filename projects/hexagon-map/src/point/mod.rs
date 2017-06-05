@@ -1,3 +1,4 @@
+use crate::{direction::Orientation, CubePoint, Joint};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display, Formatter};
 
@@ -13,28 +14,6 @@ mod display;
 pub struct AxialPoint {
     pub q: isize,
     pub r: isize,
-}
-
-#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub enum Direction {
-    /// - `S-true means right`
-    /// - `S-false means left`
-    S(bool),
-    R(bool),
-    Q(bool),
-}
-
-impl Direction {
-    pub fn all() -> [Direction; 6] {
-        [
-            Direction::S(true),
-            Direction::S(false),
-            Direction::R(true),
-            Direction::R(false),
-            Direction::Q(true),
-            Direction::Q(false),
-        ]
-    }
 }
 
 impl AxialPoint {
@@ -64,22 +43,18 @@ impl AxialPoint {
         }
         corners
     }
-    pub fn nearby(&self) -> Vec<Self> {
-        Direction::all().iter().map(|direction| self.go(*direction)).collect()
-    }
 }
 
 impl AxialPoint {
     /// Get the pixel coordinates of the center of the hexagon
-    pub fn go(&self, direction: Direction) -> Self {
-        match direction {
-            Direction::S(true) => Self::new(self.q + 1, self.r - 1),
-            Direction::S(false) => Self::new(self.q - 1, self.r + 1),
-            Direction::R(true) => Self::new(self.q + 1, self.r),
-            Direction::R(false) => Self::new(self.q - 1, self.r),
-            Direction::Q(true) => Self::new(self.q, self.r - 1),
-            Direction::Q(false) => Self::new(self.q, self.r + 1),
-        }
+    pub fn as_joint(&self, direction: Orientation) -> Joint {
+        Joint::new(*self, direction)
+    }
+    pub fn as_cube_point(&self) -> CubePoint {
+        CubePoint::from(*self)
+    }
+    pub fn go(&self, direction: Orientation) -> Self {
+        self.as_joint(direction).target()
     }
     /// Calculate the euclidean distance between two points
     pub fn euclidean_distance(&self, other: &Self, radius: f64) -> f64 {
@@ -90,21 +65,5 @@ impl AxialPoint {
     /// Calculate the manhattan distance between two points
     pub fn manhattan_distance(&self, other: &Self) -> usize {
         ((self.q - other.q).abs() + (self.r - other.r).abs()) as usize
-    }
-}
-
-impl Direction {
-    pub fn from_points(lhs: &AxialPoint, rhs: &AxialPoint) -> Option<Self> {
-        let q = rhs.q - lhs.q;
-        let r = rhs.r - lhs.r;
-        match (q, r) {
-            (1, -1) => Some(Direction::S(true)),
-            (-1, 1) => Some(Direction::S(false)),
-            (1, 0) => Some(Direction::R(true)),
-            (-1, 0) => Some(Direction::R(false)),
-            (0, -1) => Some(Direction::Q(true)),
-            (0, 1) => Some(Direction::Q(false)),
-            _ => None,
-        }
     }
 }
