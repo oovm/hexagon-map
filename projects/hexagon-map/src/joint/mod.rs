@@ -29,4 +29,10 @@ impl Joint {
     pub fn set_direction(&mut self, direction: Orientation) {
         self.direction = direction;
     }
+    pub fn forward(&self) -> Self {
+        Self::new(self.point.go(self.direction), self.direction)
+    }
+    pub fn rotate(&self, clockwise: bool) -> Self {
+        Self::new(self.point, self.direction.rotate(clockwise))
+    }
 }

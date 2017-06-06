@@ -51,6 +51,45 @@ impl<'i, T> Iterator for HexagonPointsAround<'i, T> {
     }
 }
 
+pub struct HexagonPoints {
+    current: Joint,
+    distance: isize,
+    index: isize,
+}
+
+impl HexagonPoints {
+    pub fn new(center: AxialPoint, distance: isize) -> Self {
+        Self {
+            current: Joint::new(AxialPoint { q: center.q, r: center.r + distance }, Orientation::Q(true)),
+            distance,
+            index: 0,
+        }
+    }
+}
+
+impl Iterator for HexagonPoints {
+    type Item = AxialPoint;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut out = None;
+        if self.distance == 0 && self.index == 0 {
+            out = Some(self.current.source());
+        }
+        else if self.index < 6 * self.distance {
+            match self.index % 6 {
+                0 if self.index < 6 * self.distance => {
+                    let new = self.current.rotate(false);
+                }
+                _ => {
+                    let new = self.current.forward();
+                }
+            }
+        }
+        self.index += 1;
+        out
+    }
+}
+
 impl<T> HexagonMap<T> {
     /// Count all defined points in the map.
     pub fn points_count(&self) -> usize {

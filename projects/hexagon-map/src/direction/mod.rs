@@ -23,6 +23,26 @@ impl Orientation {
             Orientation::Q(false),
         ]
     }
+    pub fn rotate(&self, clockwise: bool) -> Self {
+        match clockwise {
+            true => match self {
+                Orientation::S(true) => Orientation::R(true),
+                Orientation::S(false) => Orientation::Q(true),
+                Orientation::R(true) => Orientation::Q(false),
+                Orientation::R(false) => Orientation::S(false),
+                Orientation::Q(true) => Orientation::S(true),
+                Orientation::Q(false) => Orientation::R(false),
+            },
+            false => match self {
+                Orientation::S(true) => Orientation::Q(false),
+                Orientation::S(false) => Orientation::R(false),
+                Orientation::R(true) => Orientation::S(true),
+                Orientation::R(false) => Orientation::Q(true),
+                Orientation::Q(true) => Orientation::R(true),
+                Orientation::Q(false) => Orientation::S(false),
+            },
+        }
+    }
 }
 impl Orientation {
     pub fn from_points(lhs: &AxialPoint, rhs: &AxialPoint) -> Option<Self> {
