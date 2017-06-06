@@ -12,14 +12,14 @@ mod display;
 /// A point in axial coordinates, standard form of a hexagon map
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct AxialPoint {
+    pub p: isize,
     pub q: isize,
-    pub r: isize,
 }
 
 impl AxialPoint {
     /// Create a new point in axial coordinates
     pub fn new(q: isize, r: isize) -> Self {
-        Self { q, r }
+        Self { p: q, q: r }
     }
     /// Create a new point in axial coordinates from pixel coordinates
     pub fn from_pixel(x: f64, y: f64, radius: f64) -> Self {
@@ -29,8 +29,8 @@ impl AxialPoint {
     }
     /// Get the pixel coordinates of the center of the hexagon
     pub fn get_center(&self, radius: f64) -> (f64, f64) {
-        let x = radius * 3.0f64.sqrt() * (self.q as f64 + self.r as f64 / 2.0);
-        let y = radius * 3.0 / 2.0 * self.r as f64;
+        let x = radius * 3.0f64.sqrt() * (self.p as f64 + self.q as f64 / 2.0);
+        let y = radius * 3.0 / 2.0 * self.q as f64;
         (x, y)
     }
     /// Get the pixel coordinates of the corners of the hexagon
@@ -64,6 +64,6 @@ impl AxialPoint {
     }
     /// Calculate the manhattan distance between two points
     pub fn manhattan_distance(&self, other: &Self) -> usize {
-        ((self.q - other.q).abs() + (self.r - other.r).abs()) as usize
+        ((self.p - other.p).abs() + (self.q - other.q).abs()) as usize
     }
 }

@@ -20,7 +20,7 @@ impl HPoint {
 
 impl From<AxialPoint> for HPoint {
     fn from(point: AxialPoint) -> Self {
-        HPoint::new(point.q, point.r)
+        HPoint::new(point.p, point.q)
     }
 }
 

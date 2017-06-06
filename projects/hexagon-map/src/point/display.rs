@@ -3,24 +3,24 @@ use crate::CubePoint;
 
 impl Debug for AxialPoint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Axial").field("q", &self.q).field("s", &(-self.q - self.r)).field("r", &self.r).finish()
+        f.debug_struct("Axial").field("h", &(-self.p - self.q)).field("p", &self.p).field("q", &self.q).finish()
     }
 }
 
 impl Debug for CubePoint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Cube").field("s", &self.s).field("q", &self.q).field("r", &self.r).finish()
+        f.debug_struct("Cube").field("h", &self.h).field("p", &self.p).field("q", &self.q).finish()
     }
 }
 
 impl Display for AxialPoint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("Axial").field(&self.q).field(&(-self.q - self.r)).field(&self.r).finish()
+        f.debug_tuple("Axial").field(&(-self.p - self.q)).field(&self.p).field(&self.q).finish()
     }
 }
 
 impl Display for CubePoint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.debug_tuple("Cube").field(&self.s).field(&self.q).field(&self.r).finish()
+        f.debug_tuple("Cube").field(&self.h).field(&self.p).field(&self.q).finish()
     }
 }

@@ -5,20 +5,19 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Orientation {
-    /// - `S-true means right`
-    /// - `S-false means left`
-    S(bool),
-    R(bool),
+    /// The horizontal axis, pointing to the right
+    H(bool),
+    P(bool),
     Q(bool),
 }
 
 impl Orientation {
     pub fn all() -> [Orientation; 6] {
         [
-            Orientation::S(true),
-            Orientation::S(false),
-            Orientation::R(true),
-            Orientation::R(false),
+            Orientation::H(true),
+            Orientation::H(false),
+            Orientation::P(true),
+            Orientation::P(false),
             Orientation::Q(true),
             Orientation::Q(false),
         ]
@@ -26,33 +25,33 @@ impl Orientation {
     pub fn rotate(&self, clockwise: bool) -> Self {
         match clockwise {
             true => match self {
-                Orientation::S(true) => Orientation::R(true),
-                Orientation::S(false) => Orientation::Q(true),
-                Orientation::R(true) => Orientation::Q(false),
-                Orientation::R(false) => Orientation::S(false),
-                Orientation::Q(true) => Orientation::S(true),
-                Orientation::Q(false) => Orientation::R(false),
+                Orientation::H(true) => Orientation::P(true),
+                Orientation::H(false) => Orientation::Q(true),
+                Orientation::P(true) => Orientation::Q(false),
+                Orientation::P(false) => Orientation::H(false),
+                Orientation::Q(true) => Orientation::H(true),
+                Orientation::Q(false) => Orientation::P(false),
             },
             false => match self {
-                Orientation::S(true) => Orientation::Q(false),
-                Orientation::S(false) => Orientation::R(false),
-                Orientation::R(true) => Orientation::S(true),
-                Orientation::R(false) => Orientation::Q(true),
-                Orientation::Q(true) => Orientation::R(true),
-                Orientation::Q(false) => Orientation::S(false),
+                Orientation::H(true) => Orientation::Q(false),
+                Orientation::H(false) => Orientation::P(false),
+                Orientation::P(true) => Orientation::H(true),
+                Orientation::P(false) => Orientation::Q(true),
+                Orientation::Q(true) => Orientation::P(true),
+                Orientation::Q(false) => Orientation::H(false),
             },
         }
     }
 }
 impl Orientation {
     pub fn from_points(lhs: &AxialPoint, rhs: &AxialPoint) -> Option<Self> {
-        let q = rhs.q - lhs.q;
-        let r = rhs.r - lhs.r;
+        let q = rhs.p - lhs.p;
+        let r = rhs.q - lhs.q;
         match (q, r) {
-            (1, -1) => Some(Orientation::S(true)),
-            (-1, 1) => Some(Orientation::S(false)),
-            (1, 0) => Some(Orientation::R(true)),
-            (-1, 0) => Some(Orientation::R(false)),
+            (1, -1) => Some(Orientation::H(true)),
+            (-1, 1) => Some(Orientation::H(false)),
+            (1, 0) => Some(Orientation::P(true)),
+            (-1, 0) => Some(Orientation::P(false)),
             (0, -1) => Some(Orientation::Q(true)),
             (0, 1) => Some(Orientation::Q(false)),
             _ => None,
@@ -60,12 +59,12 @@ impl Orientation {
     }
     pub fn goto_points(&self, lhs: &AxialPoint) -> AxialPoint {
         match self {
-            Orientation::S(true) => AxialPoint::new(lhs.q + 1, lhs.r - 1),
-            Orientation::S(false) => AxialPoint::new(lhs.q - 1, lhs.r + 1),
-            Orientation::R(true) => AxialPoint::new(lhs.q + 1, lhs.r),
-            Orientation::R(false) => AxialPoint::new(lhs.q - 1, lhs.r),
-            Orientation::Q(true) => AxialPoint::new(lhs.q, lhs.r - 1),
-            Orientation::Q(false) => AxialPoint::new(lhs.q, lhs.r + 1),
+            Orientation::H(true) => AxialPoint::new(lhs.p + 1, lhs.q - 1),
+            Orientation::H(false) => AxialPoint::new(lhs.p - 1, lhs.q + 1),
+            Orientation::P(true) => AxialPoint::new(lhs.p + 1, lhs.q),
+            Orientation::P(false) => AxialPoint::new(lhs.p - 1, lhs.q),
+            Orientation::Q(true) => AxialPoint::new(lhs.p, lhs.q - 1),
+            Orientation::Q(false) => AxialPoint::new(lhs.p, lhs.q + 1),
         }
     }
 }

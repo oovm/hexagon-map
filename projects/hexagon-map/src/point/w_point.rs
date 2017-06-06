@@ -20,7 +20,7 @@ impl WPoint {
 
 impl From<AxialPoint> for WPoint {
     fn from(point: AxialPoint) -> Self {
-        WPoint::new(point.q, point.r)
+        WPoint::new(point.p, point.q)
     }
 }
 

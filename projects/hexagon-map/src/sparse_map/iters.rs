@@ -60,7 +60,7 @@ pub struct HexagonPoints {
 impl HexagonPoints {
     pub fn new(center: AxialPoint, distance: isize) -> Self {
         Self {
-            current: Joint::new(AxialPoint { q: center.q, r: center.r + distance }, Orientation::Q(true)),
+            current: Joint::new(AxialPoint { p: center.p + distance - 1, q: center.q + 1 }, Orientation::H(true)),
             distance,
             index: 0,
         }
@@ -76,12 +76,14 @@ impl Iterator for HexagonPoints {
             out = Some(self.current.source());
         }
         else if self.index < 6 * self.distance {
-            match self.index % 6 {
-                0 if self.index < 6 * self.distance => {
-                    let new = self.current.rotate(false);
+            match self.index % self.distance {
+                0 => {
+                    let new = self.current.rotate(false).forward();
+                    out = Some(new.source());
                 }
                 _ => {
                     let new = self.current.forward();
+                    out = Some(new.source());
                 }
             }
         }

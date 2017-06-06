@@ -7,12 +7,12 @@ impl Iterator for Orientation {
     // Rotate 60° counterclockwise
     fn next(&mut self) -> Option<Self::Item> {
         *self = match self {
-            Orientation::S(true) => Orientation::R(true),
-            Orientation::S(false) => Orientation::R(false),
-            Orientation::R(true) => Orientation::Q(true),
-            Orientation::R(false) => Orientation::Q(false),
-            Orientation::Q(true) => Orientation::S(true),
-            Orientation::Q(false) => Orientation::S(false),
+            Orientation::H(true) => Orientation::P(true),
+            Orientation::H(false) => Orientation::P(false),
+            Orientation::P(true) => Orientation::Q(true),
+            Orientation::P(false) => Orientation::Q(false),
+            Orientation::Q(true) => Orientation::H(true),
+            Orientation::Q(false) => Orientation::H(false),
         };
         Some(*self)
     }
@@ -31,8 +31,8 @@ impl Neg for Orientation {
 
     fn neg(self) -> Self::Output {
         match self {
-            Orientation::S(v) => Orientation::S(!v),
-            Orientation::R(v) => Orientation::R(!v),
+            Orientation::H(v) => Orientation::H(!v),
+            Orientation::P(v) => Orientation::P(!v),
             Orientation::Q(v) => Orientation::Q(!v),
         }
     }
