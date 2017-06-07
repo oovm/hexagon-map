@@ -3,11 +3,20 @@ mod convert;
 mod display;
 use serde::{Deserialize, Serialize};
 
+/// Orientation in the HPQ coordinate system
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Orientation {
-    /// The horizontal axis, pointing to the right
+    /// The horizontal axis
+    /// - `T`: move to right
+    /// - `F`: move to left
     H(bool),
+    /// The right up axis
+    /// - `T`: move to right up
+    /// - `F`: move to left down
     P(bool),
+    /// The left up axis
+    /// - `T`: move to left up
+    /// - `F`: move to right down
     Q(bool),
 }
 
@@ -51,14 +60,15 @@ impl Orientation {
 }
 impl Orientation {
     pub fn from_points(lhs: &AxialPoint, rhs: &AxialPoint) -> Option<Self> {
-        let diff = rhs - lhs;
-        match diff {
-            AxialPoint { p: 1, q: 1 } => Some(Orientation::H(true)),
-            AxialPoint { p: 1, q: 0 } => Some(Orientation::P(true)),
-            AxialPoint { p: 0, q: 1 } => Some(Orientation::Q(true)),
-            AxialPoint { p: -1, q: -1 } => Some(Orientation::H(false)),
-            AxialPoint { p: -1, q: 0 } => Some(Orientation::P(false)),
-            AxialPoint { p: 0, q: -1 } => Some(Orientation::Q(false)),
+        let dp = rhs.p - lhs.p;
+        let dq = rhs.q - lhs.q;
+        match (dp, dq) {
+            (1, 1) => Some(Orientation::H(true)),
+            (1, 0) => Some(Orientation::P(true)),
+            (0, 1) => Some(Orientation::Q(true)),
+            (-1, -1) => Some(Orientation::H(false)),
+            (-1, 0) => Some(Orientation::P(false)),
+            (0, -1) => Some(Orientation::Q(false)),
             _ => None,
         }
     }

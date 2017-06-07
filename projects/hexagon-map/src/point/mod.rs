@@ -18,8 +18,8 @@ pub struct AxialPoint {
 
 impl AxialPoint {
     /// Create a new point in axial coordinates
-    pub fn new(q: isize, r: isize) -> Self {
-        Self { p: q, q: r }
+    pub fn new(p: isize, q: isize) -> Self {
+        Self { p, q }
     }
     /// Create a new point in axial coordinates from pixel coordinates
     pub fn from_pixel(x: f64, y: f64, radius: f64) -> Self {

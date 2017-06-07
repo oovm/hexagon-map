@@ -1,4 +1,4 @@
-use hexagon_map::{AxialPoint, HexagonMap};
+use hexagon_map::{AxialPoint, HexagonMap, IsometricLine};
 
 #[test]
 fn ready() {
@@ -10,6 +10,14 @@ fn test() {
     let map = HexagonMap::<bool>::width_first(3, 4, true);
     for (p, maze) in map.points_all() {
         println!("{p:?}: {maze}")
+    }
+}
+
+#[test]
+fn test_circuit() {
+    let circuit = IsometricLine::new(AxialPoint::new(0, 0), 0);
+    for point in circuit {
+        println!("{point:?}")
     }
 }
 

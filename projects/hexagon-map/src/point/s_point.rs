@@ -3,11 +3,17 @@ use super::*;
 /// A point in 3D stepped coordinate
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct CubePoint {
-    /// Q-axis index, Z-axis index in cube coordinates
+    /// The horizontal axis
+    /// - `T`: move to right
+    /// - `F`: move to left
     pub h: isize,
-    /// S-axis index, X-axis index in cube coordinates
+    /// The right up axis
+    /// - `T`: move to right up
+    /// - `F`: move to left down
     pub p: isize,
-    /// R-axis index, Y-axis index in cube coordinates
+    /// The left up axis
+    /// - `T`: move to left up
+    /// - `F`: move to right down
     pub q: isize,
 }
 
@@ -22,12 +28,12 @@ impl CubePoint {
 
 impl From<AxialPoint> for CubePoint {
     fn from(point: AxialPoint) -> Self {
-        CubePoint::new(point.p, -point.p - point.q, point.q)
+        CubePoint::new(point.p - point.q, point.p, point.q)
     }
 }
 
 impl Into<AxialPoint> for CubePoint {
     fn into(self) -> AxialPoint {
-        AxialPoint::new(self.h, self.q)
+        AxialPoint::new(self.p, self.q)
     }
 }
