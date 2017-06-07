@@ -9,7 +9,7 @@ fn ready() {
 fn test() {
     let map = HexagonMap::<bool>::width_first(3, 4, true);
     for (p, maze) in map.points_all() {
-        println!("{p}: {maze}")
+        println!("{p:?}: {maze}")
     }
 }
 
