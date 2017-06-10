@@ -14,18 +14,6 @@ impl HPoint {
         Self { x, y }
     }
     pub fn go(&self, direction: Orientation) -> Self {
-        <HPoint as Into<AxialPoint>>::into(*self).go(direction).into()
-    }
-}
-
-impl From<AxialPoint> for HPoint {
-    fn from(point: AxialPoint) -> Self {
-        HPoint::new(point.p, point.q)
-    }
-}
-
-impl Into<AxialPoint> for HPoint {
-    fn into(self) -> AxialPoint {
-        AxialPoint::new(self.x, self.y)
+        <HPoint as Into<CubicPoint>>::into(*self).go(direction).into()
     }
 }

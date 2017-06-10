@@ -1,10 +1,10 @@
-use crate::AxialPoint;
+use crate::CubePoint;
 mod convert;
 mod display;
 use serde::{Deserialize, Serialize};
 
 /// Orientation in the HPQ coordinate system
-#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Orientation {
     /// The horizontal axis
     /// - `T`: move to right
@@ -59,7 +59,7 @@ impl Orientation {
     }
 }
 impl Orientation {
-    pub fn from_points(lhs: &AxialPoint, rhs: &AxialPoint) -> Option<Self> {
+    pub fn from_points(lhs: &CubePoint, rhs: &CubePoint) -> Option<Self> {
         let dp = rhs.p - lhs.p;
         let dq = rhs.q - lhs.q;
         match (dp, dq) {
@@ -72,14 +72,14 @@ impl Orientation {
             _ => None,
         }
     }
-    pub fn goto_points(&self, lhs: &AxialPoint) -> AxialPoint {
+    pub fn goto_points(&self, lhs: &CubePoint) -> CubePoint {
         match self {
-            Orientation::H(true) => AxialPoint::new(lhs.p + 1, lhs.q + 1),
-            Orientation::P(true) => AxialPoint::new(lhs.p + 1, lhs.q),
-            Orientation::Q(true) => AxialPoint::new(lhs.p, lhs.q + 1),
-            Orientation::H(false) => AxialPoint::new(lhs.p - 1, lhs.q - 1),
-            Orientation::P(false) => AxialPoint::new(lhs.p - 1, lhs.q),
-            Orientation::Q(false) => AxialPoint::new(lhs.p, lhs.q - 1),
+            Orientation::H(true) => CubePoint::new(lhs.p + 1, lhs.q + 1),
+            Orientation::P(true) => CubePoint::new(lhs.p + 1, lhs.q),
+            Orientation::Q(true) => CubePoint::new(lhs.p, lhs.q + 1),
+            Orientation::H(false) => CubePoint::new(lhs.p - 1, lhs.q - 1),
+            Orientation::P(false) => CubePoint::new(lhs.p - 1, lhs.q),
+            Orientation::Q(false) => CubePoint::new(lhs.p, lhs.q - 1),
         }
     }
 }

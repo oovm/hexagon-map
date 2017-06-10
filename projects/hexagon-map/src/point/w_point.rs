@@ -14,18 +14,18 @@ impl WPoint {
         Self { x, y }
     }
     pub fn go(&self, direction: Orientation) -> Self {
-        <WPoint as Into<AxialPoint>>::into(*self).go(direction).into()
+        <WPoint as Into<CubicPoint>>::into(*self).go(direction).into()
     }
 }
 
-impl From<AxialPoint> for WPoint {
-    fn from(point: AxialPoint) -> Self {
+impl From<CubicPoint> for WPoint {
+    fn from(point: CubicPoint) -> Self {
         WPoint::new(point.p, point.q)
     }
 }
 
-impl Into<AxialPoint> for WPoint {
-    fn into(self) -> AxialPoint {
-        AxialPoint::new(self.x, self.y)
+impl Into<CubicPoint> for WPoint {
+    fn into(self) -> CubicPoint {
+        CubicPoint::new(self.x, self.y)
     }
 }
