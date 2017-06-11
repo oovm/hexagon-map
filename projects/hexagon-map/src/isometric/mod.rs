@@ -1,4 +1,4 @@
-use crate::{CubePoint, Joint, Orientation};
+use crate::{CubicPoint, HexPoint, Joint, Orientation};
 use std::fmt::{Debug, Formatter};
 
 pub struct IsometricLine {
@@ -26,21 +26,21 @@ impl Debug for IsometricLine {
 }
 
 enum IsometricLineSealed {
-    Zero { center: CubePoint, stop: bool },
+    Zero { center: CubicPoint, stop: bool },
     Normal { current: Joint, distance: isize, index: isize },
 }
 
 impl IsometricLine {
     pub fn new<P>(center: P, distance: usize) -> IsometricLine
     where
-        P: Into<CubePoint>,
+        P: HexPoint,
     {
-        let center = center.into();
+        let center = center.as_cubic_point();
         let h_offset = distance as isize;
         let wrapper = match distance {
             0 => IsometricLineSealed::Zero { center, stop: false },
             _ => IsometricLineSealed::Normal {
-                current: Joint::new(CubePoint { p: center.p + h_offset, q: center.q + h_offset - 1 }, Orientation::P(true)),
+                current: Joint::new(CubicPoint { p: center.p + h_offset, q: center.q + h_offset - 1 }, Orientation::P(true)),
                 distance: h_offset,
                 index: 0,
             },
@@ -66,7 +66,7 @@ impl IsometricLine {
 }
 
 impl Iterator for IsometricLine {
-    type Item = CubePoint;
+    type Item = CubicPoint;
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut out = None;
@@ -77,11 +77,11 @@ impl Iterator for IsometricLine {
                     match *index % *distance {
                         0 => {
                             *current = current.forward().rotate(false);
-                            out = Some(current.source());
+                            out = Some(current.source().as_cubic_point());
                         }
                         _ => {
                             *current = current.forward();
-                            out = Some(current.source());
+                            out = Some(current.source().as_cubic_point());
                         }
                     };
                 }

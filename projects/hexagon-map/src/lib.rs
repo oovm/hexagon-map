@@ -8,7 +8,7 @@ pub use crate::{
     direction::Orientation,
     isometric::IsometricLine,
     joint::Joint,
-    point::{h_point::HPoint, s_point::AxialPoint, w_point::WPoint, CubePoint, HexPoint},
+    point::{a_point::AxialPoint, c_point::CubicPoint, h_point::HPoint, w_point::WPoint, HexPoint},
     sparse_map::{
         action_field::ActionFieldSolver,
         iters::{GetHexagonAround, GetHexagonPoints},

@@ -54,7 +54,7 @@ impl CubicPoint {
         Joint::new(*self, direction)
     }
     pub fn go(&self, direction: Orientation) -> Self {
-        self.as_joint(direction).target()
+        self.as_joint(direction).target().as_cubic_point()
     }
     /// Calculate the euclidean distance between two points
     pub fn euclidean_distance(&self, other: &Self, radius: f64) -> f64 {

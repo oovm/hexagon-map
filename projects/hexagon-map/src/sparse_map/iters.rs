@@ -3,15 +3,15 @@ use super::*;
 use std::collections::btree_map::{Iter, IterMut};
 
 pub struct GetHexagonPoints<'i, T> {
-    map: Iter<'i, CubePoint, T>,
+    map: Iter<'i, CubicPoint, T>,
 }
 
 pub struct MutGetHexagonPoints<'i, T> {
-    map: IterMut<'i, CubePoint, T>,
+    map: IterMut<'i, CubicPoint, T>,
 }
 
 impl<'i, T> Iterator for GetHexagonPoints<'i, T> {
-    type Item = (CubePoint, &'i T);
+    type Item = (CubicPoint, &'i T);
 
     fn next(&mut self) -> Option<Self::Item> {
         let (p, v) = self.map.next()?;
@@ -20,7 +20,7 @@ impl<'i, T> Iterator for GetHexagonPoints<'i, T> {
 }
 
 impl<'i, T> Iterator for MutGetHexagonPoints<'i, T> {
-    type Item = (CubePoint, &'i T);
+    type Item = (CubicPoint, &'i T);
 
     fn next(&mut self) -> Option<Self::Item> {
         let (p, v) = self.map.next()?;
@@ -48,7 +48,7 @@ pub struct MutHexagonAround<'i, T> {
 }
 
 impl<'i, T> Iterator for GetHexagonAround<'i, T> {
-    type Item = (CubePoint, &'i T);
+    type Item = (CubicPoint, &'i T);
 
     fn next(&mut self) -> Option<Self::Item> {
         let p = self.current.next()?;
@@ -60,7 +60,7 @@ impl<'i, T> Iterator for GetHexagonAround<'i, T> {
 }
 
 impl<'i, T> Iterator for MutHexagonAround<'i, T> {
-    type Item = (CubePoint, &'i mut T);
+    type Item = (CubicPoint, &'i mut T);
 
     fn next(&mut self) -> Option<Self::Item> {
         let p = self.current.next()?;
@@ -78,7 +78,7 @@ impl<T> HexagonMap<T> {
         self.sparse.len()
     }
     /// Find at most 6 points that are exists and adjacent to given point.
-    pub fn points_nearby(&self, source: CubePoint) -> Vec<CubePoint> {
+    pub fn points_nearby(&self, source: CubicPoint) -> Vec<CubicPoint> {
         let mut out = Vec::with_capacity(6);
         for direction in Orientation::all() {
             let target = source.go(direction);
@@ -89,7 +89,7 @@ impl<T> HexagonMap<T> {
         out
     }
     /// Find at most 6 joints that are exists and adjacent to given point.
-    pub fn joints_nearby(&self, source: CubePoint) -> Vec<Joint> {
+    pub fn joints_nearby(&self, source: CubicPoint) -> Vec<Joint> {
         let mut out = Vec::with_capacity(6);
         for direction in Orientation::all() {
             let target = source.go(direction);
@@ -100,7 +100,7 @@ impl<T> HexagonMap<T> {
         out
     }
     /// Find all points that are within a certain distance of a point.
-    pub fn points_around(&self, source: CubePoint, steps: usize) -> GetHexagonAround<T> {
+    pub fn points_around(&self, source: CubicPoint, steps: usize) -> GetHexagonAround<T> {
         GetHexagonAround { map: self, current: IsometricLine::new(source, steps) }
     }
 }

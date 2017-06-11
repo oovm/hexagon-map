@@ -1,4 +1,4 @@
-use crate::{point::CubePoint, HPoint, IsometricLine, Joint, Orientation, WPoint};
+use crate::{CubicPoint, HPoint, IsometricLine, Joint, Orientation, WPoint};
 use itertools::Itertools;
 use std::{cmp::Ordering, collections::BTreeMap};
 pub mod action_field;
@@ -7,7 +7,7 @@ pub mod path_finder;
 
 /// A sparse hexagon map, if your map size will grow, or most areas will be blank, this is a better choice.
 pub struct HexagonMap<T> {
-    sparse: BTreeMap<CubePoint, T>,
+    sparse: BTreeMap<CubicPoint, T>,
 }
 
 impl<T: Default> HexagonMap<T> {
@@ -15,7 +15,7 @@ impl<T: Default> HexagonMap<T> {
         let mut map = BTreeMap::new();
         for x in 0..diameter {
             for y in 0..diameter {
-                let point = CubePoint::new(x as isize, y as isize);
+                let point = CubicPoint::new(x as isize, y as isize);
                 map.insert(point, Default::default());
             }
         }
@@ -25,7 +25,7 @@ impl<T: Default> HexagonMap<T> {
         let mut map = BTreeMap::new();
         for x in 0..width {
             for y in 0..height {
-                map.insert(CubePoint::new(x as isize, y as isize), Default::default());
+                map.insert(CubicPoint::new(x as isize, y as isize), Default::default());
             }
         }
         Self { sparse: map }
@@ -77,19 +77,19 @@ impl<T: Default> HexagonMap<T> {
 
 impl<T> HexagonMap<T> {
     /// Get the value at a point, if it exists.
-    pub fn get_point(&self, point: CubePoint) -> Option<&T> {
+    pub fn get_point(&self, point: CubicPoint) -> Option<&T> {
         self.sparse.get(&point)
     }
     /// Add a point to the map, if it already exists, return the old value.
-    pub fn add_point(&mut self, point: CubePoint, value: T) -> Option<T> {
+    pub fn add_point(&mut self, point: CubicPoint, value: T) -> Option<T> {
         self.sparse.insert(point, value)
     }
     /// Get a mutable reference to a point, if it exists.
-    pub fn mut_point(&mut self, point: CubePoint) -> Option<&mut T> {
+    pub fn mut_point(&mut self, point: CubicPoint) -> Option<&mut T> {
         self.sparse.get_mut(&point)
     }
     /// Remove a point from the map, if it exists, return the old value.
-    pub fn remove_point(&mut self, point: CubePoint) -> Option<T> {
+    pub fn remove_point(&mut self, point: CubicPoint) -> Option<T> {
         self.sparse.remove(&point)
     }
 }

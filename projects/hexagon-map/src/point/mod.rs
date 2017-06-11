@@ -11,7 +11,7 @@ mod arithmetic;
 mod convert;
 mod display;
 
-pub trait HexPoint: Copy + Eq + Ord {
+pub trait HexPoint: Copy + Eq + Ord + Display + Debug {
     /// Create a new point in cubic coordinates
     fn as_cubic_point(&self) -> CubicPoint;
     /// Create a new point in axial coordinates from pixel coordinates

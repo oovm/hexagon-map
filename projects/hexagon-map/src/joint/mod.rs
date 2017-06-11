@@ -1,20 +1,20 @@
-use crate::{point::CubePoint, Orientation};
+use crate::{CubicPoint, HexPoint, Orientation};
 use serde::{Deserialize, Serialize};
 
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Joint {
-    point: CubePoint,
+    point: CubicPoint,
     direction: Orientation,
 }
 
 impl Joint {
     pub fn new<P>(point: P, direction: Orientation) -> Self
     where
-        P: Into<CubePoint>,
+        P: HexPoint,
     {
-        Self { point: point.into(), direction }
+        Self { point: point.as_cubic_point(), direction }
     }
-    pub fn from_points(source: CubePoint, target: CubePoint) -> Self {
+    pub fn from_points(source: CubicPoint, target: CubicPoint) -> Self {
         match Orientation::from_points(&source, &target) {
             Some(s) => source.as_joint(s),
             None => panic!("{source:?} and {target:?} are not adjacent points"),
@@ -23,10 +23,10 @@ impl Joint {
 }
 
 impl Joint {
-    pub fn source(&self) -> CubePoint {
-        self.point.clone()
+    pub fn source(&self) -> impl HexPoint {
+        self.point
     }
-    pub fn target(&self) -> CubePoint {
+    pub fn target(&self) -> impl HexPoint {
         self.direction.goto_points(&self.point)
     }
     pub fn get_direction(&self) -> Orientation {

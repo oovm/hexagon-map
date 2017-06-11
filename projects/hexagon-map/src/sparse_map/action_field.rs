@@ -3,10 +3,10 @@ use std::vec::IntoIter;
 
 pub struct ActionFieldSolver<'a, T> {
     map: &'a HexagonMap<T>,
-    open: BTreeMap<CubePoint, f64>,
-    close: BTreeMap<CubePoint, f64>,
-    passable: Box<dyn Fn(&CubePoint, &T) -> bool>,
-    action_cost: Box<dyn Fn(&CubePoint, &T) -> f64>,
+    open: BTreeMap<CubicPoint, f64>,
+    close: BTreeMap<CubicPoint, f64>,
+    passable: Box<dyn Fn(&CubicPoint, &T) -> bool>,
+    action_cost: Box<dyn Fn(&CubicPoint, &T) -> f64>,
     action_points: f64,
 }
 
@@ -24,7 +24,7 @@ impl<T> HexagonMap<T> {
     /// ```
     /// # use hexagon_map::HexagonMap;
     /// ```
-    pub fn action_field(&self, start: CubePoint, action: f64) -> ActionFieldSolver<T> {
+    pub fn action_field(&self, start: CubicPoint, action: f64) -> ActionFieldSolver<T> {
         let mut open = BTreeMap::new();
         open.insert(start, 0.0);
         ActionFieldSolver {
@@ -41,14 +41,14 @@ impl<T> HexagonMap<T> {
 impl<'a, T> ActionFieldSolver<'a, T> {
     pub fn with_passable<F>(mut self, passable: F) -> Self
     where
-        F: Fn(&CubePoint, &T) -> bool + 'static,
+        F: Fn(&CubicPoint, &T) -> bool + 'static,
     {
         self.passable = Box::new(passable);
         self
     }
     pub fn with_cost<F>(mut self, cost: F) -> Self
     where
-        F: Fn(&CubePoint, &T) -> f64 + 'static,
+        F: Fn(&CubicPoint, &T) -> f64 + 'static,
     {
         self.action_cost = Box::new(cost);
         self
@@ -57,7 +57,7 @@ impl<'a, T> ActionFieldSolver<'a, T> {
 
 impl<'a, T> ActionFieldSolver<'a, T> {
     /// Get all passable neighbors from a point
-    pub fn neighbors(&self, point: &CubePoint) -> Vec<(CubePoint, f64)> {
+    pub fn neighbors(&self, point: &CubicPoint) -> Vec<(CubicPoint, f64)> {
         let mut neighbors = Vec::with_capacity(6);
         for direction in Orientation::all() {
             let key = point.go(direction);
@@ -74,7 +74,7 @@ impl<'a, T> ActionFieldSolver<'a, T> {
         }
         neighbors
     }
-    pub fn solve(mut self) -> impl Iterator<Item = (f64, CubePoint)> {
+    pub fn solve(mut self) -> impl Iterator<Item = (f64, CubicPoint)> {
         while let Some((point, cost)) = self.open.pop_first() {
             for (neighbor, neighbor_cost) in self.neighbors(&point) {
                 let new_cost = cost + neighbor_cost;
@@ -92,7 +92,7 @@ impl<'a, T> ActionFieldSolver<'a, T> {
 }
 
 impl<'a, T> IntoIterator for ActionFieldSolver<'a, T> {
-    type Item = (f64, CubePoint);
+    type Item = (f64, CubicPoint);
     type IntoIter = IntoIter<Self::Item>;
     fn into_iter(self) -> Self::IntoIter {
         self.solve().collect_vec().into_iter()

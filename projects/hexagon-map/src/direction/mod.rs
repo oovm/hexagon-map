@@ -1,4 +1,4 @@
-use crate::CubePoint;
+use crate::CubicPoint;
 mod convert;
 mod display;
 use serde::{Deserialize, Serialize};
@@ -59,7 +59,7 @@ impl Orientation {
     }
 }
 impl Orientation {
-    pub fn from_points(lhs: &CubePoint, rhs: &CubePoint) -> Option<Self> {
+    pub fn from_points(lhs: &CubicPoint, rhs: &CubicPoint) -> Option<Self> {
         let dp = rhs.p - lhs.p;
         let dq = rhs.q - lhs.q;
         match (dp, dq) {
@@ -72,14 +72,14 @@ impl Orientation {
             _ => None,
         }
     }
-    pub fn goto_points(&self, lhs: &CubePoint) -> CubePoint {
+    pub fn goto_points(&self, lhs: &CubicPoint) -> CubicPoint {
         match self {
-            Orientation::H(true) => CubePoint::new(lhs.p + 1, lhs.q + 1),
-            Orientation::P(true) => CubePoint::new(lhs.p + 1, lhs.q),
-            Orientation::Q(true) => CubePoint::new(lhs.p, lhs.q + 1),
-            Orientation::H(false) => CubePoint::new(lhs.p - 1, lhs.q - 1),
-            Orientation::P(false) => CubePoint::new(lhs.p - 1, lhs.q),
-            Orientation::Q(false) => CubePoint::new(lhs.p, lhs.q - 1),
+            Orientation::H(true) => CubicPoint::new(lhs.p + 1, lhs.q + 1),
+            Orientation::P(true) => CubicPoint::new(lhs.p + 1, lhs.q),
+            Orientation::Q(true) => CubicPoint::new(lhs.p, lhs.q + 1),
+            Orientation::H(false) => CubicPoint::new(lhs.p - 1, lhs.q - 1),
+            Orientation::P(false) => CubicPoint::new(lhs.p - 1, lhs.q),
+            Orientation::Q(false) => CubicPoint::new(lhs.p, lhs.q - 1),
         }
     }
 }
