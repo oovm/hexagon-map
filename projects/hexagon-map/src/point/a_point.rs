@@ -18,15 +18,6 @@ impl AxialPoint {
     pub fn new(q: isize, r: isize) -> Self {
         Self { q, r }
     }
-    pub fn get_q(&self) -> isize {
-        self.q
-    }
-    pub fn get_r(&self) -> isize {
-        self.r
-    }
-    pub fn get_s(&self) -> isize {
-        -self.q - self.r
-    }
     pub fn go(&self, direction: Orientation) -> Self {
         <AxialPoint as Into<CubicPoint>>::into(*self).go(direction).into()
     }

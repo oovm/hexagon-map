@@ -1,5 +1,6 @@
 use super::*;
 
+use crate::HexPoint;
 use ordered_float::OrderedFloat;
 use pathfinding::prelude::astar;
 
@@ -79,7 +80,7 @@ impl<'a, T> PathFinder<'a, T> {
         self.map.sparse.contains_key(point)
     }
     fn distance(&self, point: &CubicPoint) -> OrderedFloat<f64> {
-        OrderedFloat(self.end.manhattan_distance(point) as f64)
+        OrderedFloat(self.end.taxicab_distance(*point) as f64)
     }
     /// Get all passable neighbors from a point
     pub fn neighbors(&self, point: &CubicPoint) -> Vec<(CubicPoint, OrderedFloat<f64>)> {

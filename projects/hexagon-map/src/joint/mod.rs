@@ -14,8 +14,12 @@ impl Joint {
     {
         Self { point: point.as_cubic_point(), direction }
     }
-    pub fn from_points(source: CubicPoint, target: CubicPoint) -> Self {
-        match Orientation::from_points(&source, &target) {
+    pub fn from_points<S, T>(source: S, target: T) -> Self
+    where
+        S: HexPoint,
+        T: HexPoint,
+    {
+        match Orientation::from_points(source, target) {
             Some(s) => source.as_joint(s),
             None => panic!("{source:?} and {target:?} are not adjacent points"),
         }
@@ -23,11 +27,11 @@ impl Joint {
 }
 
 impl Joint {
-    pub fn source(&self) -> impl HexPoint {
+    pub fn source(&self) -> CubicPoint {
         self.point
     }
-    pub fn target(&self) -> impl HexPoint {
-        self.direction.goto_points(&self.point)
+    pub fn target(&self) -> CubicPoint {
+        self.direction.goto_points(self.point)
     }
     pub fn get_direction(&self) -> Orientation {
         self.direction

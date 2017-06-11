@@ -1,5 +1,6 @@
 use super::*;
 
+use crate::HexPoint;
 use std::collections::btree_map::{Iter, IterMut};
 
 pub struct GetHexagonPoints<'i, T> {

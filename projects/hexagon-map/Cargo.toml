@@ -1,6 +1,6 @@
 [package]
 name = "hexagon-map"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Aster <192607617@qq.com>"]
 description = "Coordinate transformation and pathfinding for hexagonal maps"
 repository = "https://github.com/oovm/hexagon-map"
@@ -14,6 +14,7 @@ itertools = "0.10.5"
 serde = { version = "1.0.159", features = ["derive"] }
 ordered-float = "3.6.0"
 pathfinding = "4.2.1"
+shape-core = "0.1.1"
 
 [dev-dependencies]
 

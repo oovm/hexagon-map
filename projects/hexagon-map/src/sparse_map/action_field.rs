@@ -1,4 +1,5 @@
 use super::*;
+use crate::HexPoint;
 use std::vec::IntoIter;
 
 pub struct ActionFieldSolver<'a, T> {

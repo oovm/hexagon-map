@@ -6,7 +6,7 @@ impl From<CubicPoint> for AxialPoint {
     // p -> -s
     // q -> q
     fn from(point: CubicPoint) -> Self {
-        AxialPoint::new(point.get_q(), point.get_h())
+        AxialPoint::new(point.q, point.p - point.q)
     }
 }
 
@@ -24,7 +24,7 @@ impl From<AxialPoint> for CubicPoint {
     // q -> q
     // s -> -p
     fn from(point: AxialPoint) -> Self {
-        CubicPoint::new(-point.get_s(), point.get_q())
+        CubicPoint::new(point.q + point.r, point.q)
     }
 }
 
